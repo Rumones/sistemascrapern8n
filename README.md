@@ -52,6 +52,10 @@ src/
 
 ## Como Rodar o Projeto
 
+### Requisitos
+
+- Node.js >= 18 (recomendado Node 20 LTS). O Vite 5 depende de recursos de ES Modules como `top-level await` que nao existem em versões mais antigas do Node. Se voce usar **nvm**, basta executar `nvm install` na raiz do projeto (arquivo `.nvmrc`) para alinhar a versao. O `npm install` falhara automaticamente em maquinas com Node mais antigo, exibindo a versao detectada e instrucoes de atualizacao.
+
 ### Instalacao
 
 ```bash
