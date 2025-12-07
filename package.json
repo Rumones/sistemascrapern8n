@@ -11,7 +11,8 @@
     "preinstall": "node scripts/check-node.js",
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "setup:db": "./scripts/create-db.sh"
   },
   "dependencies": {
     "react": "^18.2.0",
