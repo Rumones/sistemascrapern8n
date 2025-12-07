@@ -42,7 +42,7 @@ src/
 │   ├── index.tsx                  # Configuracao de rotas
 │   └── ProtectedRoute.tsx         # Componente de rota protegida
 ├── services/
-│   └── api.ts                     # Servicos de API (mockados)
+│   └── api.ts                     # Servicos de API (HTTP + fallback local)
 ├── types/
 │   └── index.ts                   # Definicoes de tipos TypeScript
 ├── App.tsx                        # Componente principal
@@ -51,6 +51,22 @@ src/
 ```
 
 ## Como Rodar o Projeto
+
+### Requisitos
+
+- Node.js >= 18 (recomendado Node 20 LTS). O Vite 5 depende de recursos de ES Modules como `top-level await` que nao existem em versões mais antigas do Node. Se voce usar **nvm**, basta executar `nvm install` na raiz do projeto (arquivo `.nvmrc`) para alinhar a versao. O `npm install` falhara automaticamente em maquinas com Node mais antigo, exibindo a versao detectada e instrucoes de atualizacao.
+
+### Configuracao (.env)
+
+O projeto traz um arquivo `.env` ja preenchido com valores de exemplo. Ajuste-o antes de publicar para producao:
+
+- `VITE_MODO_PRODUCAO`: defina como `sim` para consumir a API real e sair do modo simulado.
+- `VITE_MODO_DEV`: mantenha `sim` enquanto estiver testando localmente com os dados de exemplo.
+- `VITE_API_BASE_URL`: URL base da sua API/backend.
+- `VITE_N8N_BASE_URL` e `VITE_WEBHOOK_URL`: endpoints do n8n e webhooks usados pelo scraper.
+- `VITE_SHEET_PUBLIC_URL`: URL publica da planilha do Google Sheets.
+- `VITE_PORTAL_USER` / `VITE_PORTAL_PASSWORD`: credenciais iniciais do portal (frontend). Altere-as imediatamente em producao.
+- Variaveis `DB_*`: caminho e credenciais usadas pelos scripts locais de criacao do banco.
 
 ### Instalacao
 
@@ -77,6 +93,16 @@ npm run build
 ```bash
 npm run preview
 ```
+
+### Banco de dados local
+
+Para criar ou atualizar o banco SQLite usado pelos workflows locais, rode:
+
+```bash
+npm run setup:db
+```
+
+O caminho do arquivo e definido em `DB_FILE` no `.env` (padrao: `./data/iniciamazon.sqlite`).
 
 ## Credenciais de Teste
 
@@ -124,56 +150,23 @@ Para acessar o portal administrativo:
 
 ## Integracao com Dados Reais
 
-Atualmente, todos os dados sao mockados em `src/services/api.ts`. Para integrar com sistemas reais:
+O frontend passa a consumir sua API real quando `VITE_MODO_PRODUCAO=sim` **e** `VITE_API_BASE_URL` apontar para o backend. Nessa configuracao, as rotas esperadas sao:
 
-### 1. Integracao com n8n
+- `POST /auth/login` para autenticar (usado em `src/contexts/AuthContext.tsx`). Deve responder com `{ email, name, token }`.
+- `GET/POST/PATCH/DELETE /nichos` para gerenciar nichos.
+- `GET/POST/PATCH/DELETE /keywords` para palavras-chave do scraper.
+- `GET /products` para listar produtos recentes.
+- `GET /stats/resumo` e `GET /stats/series` para preencher os graficos do dashboard.
 
-Substitua as funcoes mockadas por chamadas HTTP reais para endpoints do n8n:
+Se a API estiver offline ou voce manter `VITE_MODO_DEV=sim`, o app continua exibindo os dados de exemplo locais como contingencia.
 
-```typescript
-export async function getScraperKeywords(): Promise<ScraperKeyword[]> {
-  const response = await fetch('https://seu-n8n.com/webhook/keywords');
-  return response.json();
-}
+### Planilha em Tempo Real
 
-export async function createScraperKeyword(data: Omit<ScraperKeyword, 'id'>): Promise<ScraperKeyword> {
-  const response = await fetch('https://seu-n8n.com/webhook/keywords', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  return response.json();
-}
-```
+Defina `VITE_SHEET_PUBLIC_URL` com a URL real do Google Sheets para a iframe de planilha em `src/services/api.ts`.
 
-### 2. Integracao com Google Sheets
+### Webhooks n8n e disparos
 
-Para a planilha em tempo real, atualize a URL em `src/services/api.ts`:
-
-```typescript
-export function getSheetPublicUrl(): string {
-  return 'https://docs.google.com/spreadsheets/d/SEU_ID_REAL/edit?usp=sharing';
-}
-```
-
-Configure o n8n para adicionar produtos na planilha quando o scraper encontrar ofertas.
-
-### 3. Estatisticas Reais
-
-Configure webhooks do Telegram/WhatsApp via n8n para capturar:
-- Entradas de usuarios nos grupos
-- Saidas de usuarios dos grupos
-- Mensagens enviadas
-
-Armazene esses eventos em um banco de dados (Supabase, PostgreSQL, etc.) e crie endpoints para retornar as estatisticas agregadas.
-
-### 4. Autenticacao Real
-
-Para autenticacao real, substitua o mock em `src/contexts/AuthContext.tsx` por:
-- Supabase Auth
-- Firebase Auth
-- Auth0
-- Ou seu sistema de autenticacao preferido
+Configure `VITE_N8N_BASE_URL` e `VITE_WEBHOOK_URL` com os caminhos do seu n8n para conectar os fluxos de scraping e distribuicao de mensagens.
 
 ## Fluxo de Automacao (n8n)
 
