@@ -102,6 +102,8 @@ Para criar ou atualizar o banco SQLite usado pelos workflows locais, rode:
 npm run setup:db
 ```
 
+Esse comando exige o binario `sqlite3` instalado no sistema. Em distros baseadas em Debian/Ubuntu, utilize `sudo apt-get install sqlite3` antes de rodar o setup.
+
 O caminho do arquivo e definido em `DB_FILE` no `.env` (padrao: `./data/iniciamazon.sqlite`).
 
 ## Credenciais de Teste
