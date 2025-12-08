@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { PortalLayout } from '@/components/Layout/PortalLayout';
 import { StatCard } from '@/components/StatCard';
 import { Search, Package, Send, FolderOpen, ArrowRight } from 'lucide-react';
-import { getStatsResumo, getRecentProducts } from '@/services/api';
+import { getPortalStats, getRecentProducts } from '@/services/api';
 import type { StatsResumo, Product } from '@/types';
 
 export function PortalDashboard() {
@@ -17,11 +17,11 @@ export function PortalDashboard() {
 
   const loadData = async () => {
     try {
-      const [statsData, productsData] = await Promise.all([
-        getStatsResumo(),
+      const [portalStats, productsData] = await Promise.all([
+        getPortalStats(),
         getRecentProducts()
       ]);
-      setStats(statsData);
+      setStats(portalStats.resumo);
       setProducts(productsData);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);

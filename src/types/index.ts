@@ -60,6 +60,26 @@ export interface StatsSeries {
   }>;
 }
 
+export interface PortalStatsPorGrupo {
+  plataforma: string;
+  grupo_id: string;
+  grupo_nome: string;
+  entradas: number;
+  saidas: number;
+  saldo: number;
+}
+
+export interface PortalStatsPayload {
+  resumo: StatsResumo;
+  series: StatsSeries;
+  statsPorGrupo: PortalStatsPorGrupo[];
+}
+
+export interface PingResponse {
+  status: string;
+  message: string;
+}
+
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;

@@ -14,7 +14,7 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { getStatsResumo, getStatsSeries } from '@/services/api';
+import { getPortalStats } from '@/services/api';
 import type { StatsResumo, StatsSeries } from '@/types';
 
 export function PortalStats() {
@@ -28,10 +28,7 @@ export function PortalStats() {
 
   const loadStats = async () => {
     try {
-      const [resumoData, seriesData] = await Promise.all([
-        getStatsResumo(),
-        getStatsSeries()
-      ]);
+      const { resumo: resumoData, series: seriesData } = await getPortalStats();
       setResumo(resumoData);
       setSeries(seriesData);
     } catch (error) {
