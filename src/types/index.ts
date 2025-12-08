@@ -1,6 +1,7 @@
 export interface User {
   email: string;
   name: string;
+  token?: string;
 }
 
 export interface Nicho {
@@ -57,6 +58,26 @@ export interface StatsSeries {
     entradas: number;
     saidas: number;
   }>;
+}
+
+export interface PortalStatsPorGrupo {
+  plataforma: string;
+  grupo_id: string;
+  grupo_nome: string;
+  entradas: number;
+  saidas: number;
+  saldo: number;
+}
+
+export interface PortalStatsPayload {
+  resumo: StatsResumo;
+  series: StatsSeries;
+  statsPorGrupo: PortalStatsPorGrupo[];
+}
+
+export interface PingResponse {
+  status: string;
+  message: string;
 }
 
 export interface AuthContextType {
